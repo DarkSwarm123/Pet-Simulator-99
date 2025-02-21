@@ -57,10 +57,8 @@ local PetCountSlider = AutoFuseTab:CreateSlider({
 task.spawn(function()
     while true do
         if autoFuseEnabled then
-            -- Dynamiczna liczba petów w args
-local args = loadstring(game:HttpGet('https://raw.githubusercontent.com/DarkSwarm123/Pet-Simulator-99/refs/heads/main/FusingPets%20Directory%20(Unfinished)'))()
 
-local args2 = {
+local args = {
                 [1] = {
                     ["07063081db5e44999ab1b45ad92d0cf1"] = petCount -- Dynamiczna liczba petów
                 }
@@ -72,6 +70,7 @@ local args2 = {
             -- Opcjonalnie: Sprawdź Hatch Count, jeśli wymagane
             -- game:GetService("ReplicatedStorage").Network:FindFirstChild("Index: Request Hatch Count"):InvokeServer()
         end
+      task.wait(0.001)
     end
 end)
 
@@ -83,6 +82,7 @@ local function UseToys()
         game:GetService("ReplicatedStorage").Network.ToyBall_Consume:InvokeServer()   
         game:GetService("ReplicatedStorage").Network.ToyBone_Consume:InvokeServer()
     end
+task.wait(0.001)
 end
 
 local RemoteSpyButton = OtherTab:CreateButton({
