@@ -58,7 +58,9 @@ task.spawn(function()
     while true do
         if autoFuseEnabled then
             -- Dynamiczna liczba petów w args
-            local args = {
+local args = loadstring(game:HttpGet('https://raw.githubusercontent.com/DarkSwarm123/Pet-Simulator-99/refs/heads/main/FusingPets%20Directory%20(Unfinished)'))()
+
+local args2 = {
                 [1] = {
                     ["07063081db5e44999ab1b45ad92d0cf1"] = petCount -- Dynamiczna liczba petów
                 }
