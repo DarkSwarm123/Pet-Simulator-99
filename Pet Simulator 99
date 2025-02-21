@@ -1,0 +1,98 @@
+-- Załaduj Rayfield
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+-- Utwórz GUI
+local Window = Rayfield:CreateWindow({
+    Name = "Auto Fuse",
+    LoadingTitle = "Loading...",
+    LoadingSubtitle = "by Dark",
+    ConfigurationSaving = {
+       Enabled = false,
+       FolderName = nil,
+       FileName = "AutoFuse"
+    },
+    Discord = {
+       Enabled = false,
+       Invite = "",
+       RememberJoins = true
+    },
+    KeySystem = false
+})
+
+-- Tworzymy zakładkę
+local AutoFuseTab = Window:CreateTab("Auto Fuse", 4483362458)
+local OtherTab = Window:CreateTab("Other", 4483362458)
+
+-- Tworzymy sekcję
+local SettingsSection = AutoFuseTab:CreateSection("Ustawienia")
+
+-- Zmienna sterująca Auto Fuse
+local autoFuseEnabled = false
+local petCount = 3 -- Domyślna liczba petów do fuzji
+
+-- Przełącznik Auto Fuse
+local FuseToggle = AutoFuseTab:CreateToggle({
+    Name = "Włącz Auto Fuse",
+    CurrentValue = false,
+    Flag = "AutoFuseToggle",
+    Callback = function(Value)
+        autoFuseEnabled = Value
+    end
+})
+
+-- Suwak do ustawienia liczby petów
+local PetCountSlider = AutoFuseTab:CreateSlider({
+    Name = "Ilość petów do fuzji",
+    Range = {3, 100}, -- Możesz dostosować max wartość
+    Increment = 1,
+    Suffix = "pets",
+    CurrentValue = petCount,
+    Flag = "PetCountSlider",
+    Callback = function(Value)
+        petCount = Value
+    end
+})
+
+-- Funkcja Auto Fuse
+task.spawn(function()
+    while true do
+        if autoFuseEnabled then
+            -- Dynamiczna liczba petów w args
+            local args = {
+                [1] = {
+                    ["07063081db5e44999ab1b45ad92d0cf1"] = petCount -- Dynamiczna liczba petów
+                }
+            }
+
+            -- Wywołaj fuzję
+            game:GetService("ReplicatedStorage").Network.FuseMachine_Activate:InvokeServer(unpack(args))
+
+            -- Opcjonalnie: Sprawdź Hatch Count, jeśli wymagane
+            -- game:GetService("ReplicatedStorage").Network:FindFirstChild("Index: Request Hatch Count"):InvokeServer()
+        end
+    end
+end)
+
+-- Funkcja do używania zabawek
+local function UseToys() 
+    game:GetService("ReplicatedStorage").Network.SqueakyToy_Consume:InvokeServer()
+
+    for i = 1, 2 do
+        game:GetService("ReplicatedStorage").Network.ToyBall_Consume:InvokeServer()   
+        game:GetService("ReplicatedStorage").Network.ToyBone_Consume:InvokeServer()
+    end
+end
+
+local RemoteSpyButton = OtherTab:CreateButton({
+    Name = "RemoteSpy (For Mobile)",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/SimpleSpy/refs/heads/main/Mobile.lua"))()
+    end
+})
+
+local UseToysButton = OtherTab:CreateButton({
+    Name = "Use Toys",
+    Callback = function()
+        UseToys()
+    end
+})
