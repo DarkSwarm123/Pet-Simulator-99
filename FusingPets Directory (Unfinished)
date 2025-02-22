@@ -1,15 +1,14 @@
-local i = 3
-local args = {
-[1] = {["07063081db5e44999ab1b45ad92d0cf1"] = i},
-[2] = {["nextvalue"] = i},
-[3] = {["nextvalue"] = i},
-[4] = {["nextvalue"] = i},
-[5] = {["nextvalue"] = i},
-[6] = {["nextvalue"] = i},
-[7] = {["nextvalue"] = i},
-[8] = {["nextvalue"] = i},
-[9] = {["nextvalue"] = i},
-[10] = {["nextvalue"] = i},
-[11] = {["nextvalue"] = i},
-[12] = {["nextvalue"] = i},
+return {
+    [1] = {["07063081db5e44999ab1b45ad92d0cf1"] = 3},
+    [2] = {["nextvalue"] = 3},
+    [3] = {["nextvalue"] = 3},
+    [4] = {["nextvalue"] = 3},
+    [5] = {["nextvalue"] = 3},
+    [6] = {["nextvalue"] = 3},
+    [7] = {["nextvalue"] = 3},
+    [8] = {["nextvalue"] = 3},
+    [9] = {["nextvalue"] = 3},
+    [10] = {["nextvalue"] = 3},
+    [11] = {["nextvalue"] = 3},
+    [12] = {["nextvalue"] = 3}
 }
