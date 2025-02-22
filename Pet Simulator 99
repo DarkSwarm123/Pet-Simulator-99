@@ -28,7 +28,7 @@ local SettingsSection = AutoFuseTab:CreateSection("Ustawienia")
 
 -- Zmienna sterująca Auto Fuse
 local autoFuseEnabled = false
-local petCount = 3 -- Domyślna liczba petów do fuzji
+local autoFuseRunning = false  -- Zmienna kontrolująca stan pętli
 
 -- Przełącznik Auto Fuse
 local FuseToggle = AutoFuseTab:CreateToggle({
@@ -37,40 +37,58 @@ local FuseToggle = AutoFuseTab:CreateToggle({
     Flag = "AutoFuseToggle",
     Callback = function(Value)
         autoFuseEnabled = Value
+        if autoFuseEnabled then
+            autoFuseRunning = true  -- Rozpocznij pętlę
+        else
+            autoFuseRunning = false  -- Zatrzymaj pętlę
+        end
     end
 })
 
--- Suwak do ustawienia liczby petów
-local PetCountSlider = AutoFuseTab:CreateSlider({
-    Name = "Ilość petów do fuzji",
-    Range = {3, 100}, -- Możesz dostosować max wartość
-    Increment = 1,
-    Suffix = "pets",
-    CurrentValue = petCount,
-    Flag = "PetCountSlider",
-    Callback = function(Value)
-        petCount = Value
-    end
-})
+-- Załaduj dane z URL
+local success, petData = pcall(function()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/DarkSwarm123/Pet-Simulator-99/refs/heads/main/FUSINGDIR.lua"))()
+end)
+
+-- Sprawdź, czy dane zostały poprawnie załadowane
+if success and petData then
+    print("Dane załadowane poprawnie!")
+else
+    warn("Błąd ładowania danych o petach!")
+end
 
 -- Funkcja Auto Fuse
 task.spawn(function()
     while true do
-        if autoFuseEnabled then
+        if autoFuseRunning then
+            if petData then
+                -- Iterujemy po danych petów
+                for _, petSet in ipairs(petData) do
+                    local args = {}
 
-local args = {
-                [1] = {
-                    ["07063081db5e44999ab1b45ad92d0cf1"] = petCount -- Dynamiczna liczba petów
-                }
-            }
+                    -- Przygotowanie argumentów dla FuseMachine_Activate
+                    for petId, quantity in pairs(petSet) do
+                        table.insert(args, { [petId] = quantity })
+                    end
 
-            -- Wywołaj fuzję
-            game:GetService("ReplicatedStorage").Network.FuseMachine_Activate:InvokeServer(unpack(args))
+                    -- Wywołanie FuseMachine_Activate z odpowiednimi petami
+                    local successFuse, errorMessage = pcall(function()
+                        game:GetService("ReplicatedStorage").Network.FuseMachine_Activate:InvokeServer(unpack(args))
+                    end)
 
-            -- Opcjonalnie: Sprawdź Hatch Count, jeśli wymagane
-            -- game:GetService("ReplicatedStorage").Network:FindFirstChild("Index: Request Hatch Count"):InvokeServer()
+                    if successFuse then
+                        print("Pomyślnie wysłano fuzję dla:", args)
+                    else
+                        warn("Błąd przy wysyłaniu fuzji:", errorMessage)
+                    end
+
+                    task.wait(0.13)  -- Czas oczekiwania dla stabilności
+                end
+            else
+                warn("loadstringArgs nie zostało załadowane poprawnie.")
+            end
         end
-      task.wait(0.001)
+        task.wait(0.1)  -- Czekaj przed ponownym sprawdzeniem
     end
 end)
 
@@ -82,9 +100,9 @@ local function UseToys()
         game:GetService("ReplicatedStorage").Network.ToyBall_Consume:InvokeServer()   
         game:GetService("ReplicatedStorage").Network.ToyBone_Consume:InvokeServer()
     end
-task.wait(0.001)
 end
 
+-- Przycisk uruchamiający RemoteSpy (dla mobilnych urządzeń)
 local RemoteSpyButton = OtherTab:CreateButton({
     Name = "RemoteSpy (For Mobile)",
     Callback = function()
@@ -92,6 +110,7 @@ local RemoteSpyButton = OtherTab:CreateButton({
     end
 })
 
+-- Przycisk uruchamiający używanie zabawek
 local UseToysButton = OtherTab:CreateButton({
     Name = "Use Toys",
     Callback = function()
