@@ -22,6 +22,7 @@ local Window = Rayfield:CreateWindow({
 -- Tworzymy zakładkę
 local AutoFuseTab = Window:CreateTab("Auto Fuse", 4483362458)
 local OtherTab = Window:CreateTab("Other", 4483362458)
+local GardenTab = Window:CreateTab("Garden", 4483362458)
 
 -- Tworzymy sekcję
 local SettingsSection = AutoFuseTab:CreateSection("Ustawienia")
@@ -43,6 +44,104 @@ local function Wait(x)
         print("Czas używanego CPU: " .. totalClock .. " sekund.")
     end
 end
+
+-- Zmienna sterująca cyklem ogrodu
+local gardenCycleEnabled = false
+
+-- Funkcja do cyklu sadzenia, przyspieszania wzrostu i zbierania
+local function gardenCycle()
+    while gardenCycleEnabled do
+        -- Zasadź nowe rośliny równocześnie
+        for i = 1, 10 do
+            task.spawn(function()
+                local args2 = {
+                    [1] = "FlowerGarden",
+                    [2] = "PlantSeed",
+                    [3] = i,
+                    [4] = "Diamond"
+                }
+                game:GetService("ReplicatedStorage").Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args2))
+            end)
+            Wait(2)  -- Krótkie opóźnienie między uruchomieniami
+        end
+
+        -- Przyspiesz wzrost roślin równocześnie
+        for i = 1, 10 do
+            task.spawn(function()
+                local args3 = {
+                    [1] = "FlowerGarden",
+                    [2] = "InstaGrowSeed",
+                    [3] = i
+                }
+                game:GetService("ReplicatedStorage").Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args3))
+            end)
+            Wait(2)
+        end
+
+        -- Odebranie nagrody po przyspieszeniu wzrostu równocześnie
+        for i = 1, 10 do
+            task.spawn(function()
+                local args1 = {
+                    [1] = "FlowerGarden",
+                    [2] = "ClaimPlant",
+                    [3] = i
+                }
+                game:GetService("ReplicatedStorage").Network.Instancing_FireCustomFromClient:FireServer(unpack(args1))
+            end)
+            Wait(2)
+        end
+    end
+end
+
+-- Tworzymy Toggle do uruchamiania cyklu ogrodu
+local GardenCycleToggle = GardenTab:CreateToggle({
+    Name = "Enable garden cycle (Plant + Grow + Claim)",
+    CurrentValue = false,
+    Flag = "GardenCycleToggle",
+    Callback = function(Value)
+        gardenCycleEnabled = Value
+        if gardenCycleEnabled then
+            -- Odbierz nagrodę z rośliny (jednorazowo na początku)
+            for i = 1, 10 do
+                local args1 = {
+                    [1] = "FlowerGarden",
+                    [2] = "ClaimPlant",
+                    [3] = i
+                }
+                game:GetService("ReplicatedStorage").Network.Instancing_FireCustomFromClient:FireServer(unpack(args1))
+                task.wait()  -- Krótkie oczekiwanie, aby akcje były stabilne
+            end
+
+            -- Rozpoczynamy cykl ogrodu
+            gardenCycle()  -- Funkcja teraz sadzi rośliny równocześnie
+        end
+    end
+})
+
+local SeedBagEnabled = false
+
+local SeedBagToggle = GardenTab:CreateToggle({
+    Name = "Open Seed Bag",
+    CurrentValue = false,
+    Flag = "SeedBagToggle",
+    Callback = function(Value)
+        SeedBagEnabled = Value
+        -- Sprawdzamy, czy przełącznik jest włączony
+        if SeedBagEnabled then
+            -- Rozpoczynamy pętlę otwierania paczek w nowym wątku
+            task.spawn(function()
+                while SeedBagEnabled do
+                    local args = {
+                        [1] = "Seed Bag"
+                    }
+                    -- Otwórz paczkę
+                    game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer(unpack(args))
+                    Wait(2)  -- Małe opóźnienie dla stabilności
+                end
+            end)
+        end
+    end
+})
 
 -- Zmienna sterująca Auto Fuse
 local autoFuseEnabled = false
