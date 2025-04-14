@@ -26,6 +26,24 @@ local OtherTab = Window:CreateTab("Other", 4483362458)
 -- Tworzymy sekcję
 local SettingsSection = AutoFuseTab:CreateSection("Ustawienia")
 
+local function Wait(x)
+    local startTick = tick()  -- Czas rzeczywisty
+    local startClock = os.clock()  -- Czas CPU
+
+    for i = 1, x do
+        task.wait()
+    end
+
+    local logTime = false  -- Ustaw true, by włączyć logowanie
+
+    if logTime then
+        local totalTick = tick() - startTick
+        local totalClock = os.clock() - startClock
+        print("Wait(" .. x .. ") trwało około " .. totalTick .. " sekund (czas rzeczywisty).")
+        print("Czas używanego CPU: " .. totalClock .. " sekund.")
+    end
+end
+
 -- Zmienna sterująca Auto Fuse
 local autoFuseEnabled = false
 local autoFuseRunning = false  -- Zmienna kontrolująca stan pętli
@@ -82,7 +100,7 @@ task.spawn(function()
                         warn("Błąd przy wysyłaniu fuzji:", errorMessage)
                     end
 
-                    task.wait(0.13)  -- Czas oczekiwania dla stabilności
+                    Wait(7)  -- Czas oczekiwania dla stabilności
                 end
             else
                 warn("loadstringArgs nie zostało załadowane poprawnie.")
