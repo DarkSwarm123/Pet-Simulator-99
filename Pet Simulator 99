@@ -23,6 +23,7 @@ local Window = Rayfield:CreateWindow({
 local AutoFuseTab = Window:CreateTab("Auto Fuse", 4483362458)
 local OtherTab = Window:CreateTab("Other", 4483362458)
 local GardenTab = Window:CreateTab("Garden", 4483362458)
+local MinigamesTab = Window:CreateTab("Minigames", 4483362458)
 
 -- Tworzymy sekcję
 local SettingsSection = AutoFuseTab:CreateSection("Ustawienia")
@@ -140,6 +141,150 @@ local SeedBagToggle = GardenTab:CreateToggle({
                 end
             end)
         end
+    end
+})
+
+local FishingButton = 
+MinigamesTab:CreateButton({
+    Name = "Fishing GUI",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+        gui.Name = "FishingGui"
+        gui.ResetOnSpawn = false
+
+        local frame = Instance.new("Frame", gui)
+        frame.Size = UDim2.new(0, 200, 0, 125)
+        frame.Position = UDim2.new(0, 100, 0, 100)
+        frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        frame.Active = true
+        frame.Draggable = true
+        frame.Name = "MainFrame"
+
+        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 10)
+
+        local function Wait(x)
+            for i = 1, x do
+                task.wait()
+            end
+        end
+
+        local castBtn = Instance.new("TextButton", frame)
+        castBtn.Size = UDim2.new(0, 120, 0, 40)
+        castBtn.Position = UDim2.new(0, 10, 0, 10)
+        castBtn.Text = "Cast OFF"
+        castBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+        Instance.new("UICorner", castBtn).CornerRadius = UDim.new(0, 8)
+
+        local toggleBtn = Instance.new("TextButton", frame)
+        toggleBtn.Size = UDim2.new(0, 120, 0, 40)
+        toggleBtn.Position = UDim2.new(0, 10, 0, 60)
+        toggleBtn.Text = "OFF"
+        toggleBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+        Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(0, 8)
+
+        local closeBtn = Instance.new("TextButton", frame)
+        closeBtn.Size = UDim2.new(0, 30, 0, 30)
+        closeBtn.Position = UDim2.new(1, -40, 0, 5)
+        closeBtn.Text = "X"
+        closeBtn.TextColor3 = Color3.new(1, 1, 1)
+        closeBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+        Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 8)
+
+        local toggleMoveBtn = Instance.new("TextButton", gui)
+        toggleMoveBtn.Size = UDim2.new(0, 100, 0, 40)
+        toggleMoveBtn.Position = UDim2.new(0, 10, 0, 150)
+        toggleMoveBtn.Text = "GUI"
+        toggleMoveBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+        toggleMoveBtn.TextColor3 = Color3.new(1, 1, 1)
+        toggleMoveBtn.Active = true
+        toggleMoveBtn.Draggable = true
+        Instance.new("UICorner", toggleMoveBtn).CornerRadius = UDim.new(0, 8)
+
+        local running = false
+        local casting = false
+        local loopThread
+        local castThread
+
+        local function castFishingLine()
+            local character = player.Character or player.CharacterAdded:Wait()
+            local hrp = character:WaitForChild("HumanoidRootPart")
+
+            local minX, maxX = 1463.4725, 1489.3961
+            local minY, maxY = 61.6249, 61.6251
+            local minZ, maxZ = -4460.5239, -4441.8594
+
+            local target = Vector3.new(
+                math.random() * (maxX - minX) + minX,
+                math.random() * (maxY - minY) + minY,
+                math.random() * (maxZ - minZ) + minZ
+            )
+
+            local success, err = pcall(function()
+                game:GetService("ReplicatedStorage").Network.Instancing_InvokeCustomFromClient:InvokeServer("AdvancedFishing", "RequestCast", target)
+            end)
+
+            if not success then
+                warn("Cast error: " .. tostring(err))
+            end
+        end
+
+        local function startFishingLoop()
+            loopThread = task.spawn(function()
+                while running do
+                    local success, err = pcall(function()
+                        game:GetService("ReplicatedStorage").Network.Instancing_InvokeCustomFromClient:InvokeServer("AdvancedFishing", "Clicked")
+                        game:GetService("ReplicatedStorage").Network.Instancing_FireCustomFromClient:FireServer("AdvancedFishing", "RequestReel")
+                    end)
+                    if not success then
+                        warn("Fishing error: " .. tostring(err))
+                    end
+                    Wait(4)
+                end
+            end)
+        end
+
+        castBtn.MouseButton1Click:Connect(function()
+            casting = not casting
+            if casting then
+                castBtn.Text = "Cast ON"
+                castBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+                castThread = task.spawn(function()
+                    while casting do
+                        castFishingLine()
+                        task.wait(1)
+                    end
+                end)
+            else
+                castBtn.Text = "Cast OFF"
+                castBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+            end
+        end)
+
+        toggleBtn.MouseButton1Click:Connect(function()
+            running = not running
+            if running then
+                toggleBtn.Text = "tapping ON"
+                toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+                startFishingLoop()
+            else
+                toggleBtn.Text = "tapping OFF"
+                toggleBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+            end
+        end)
+
+        closeBtn.MouseButton1Click:Connect(function()
+            running = false
+            casting = false
+            gui:Destroy()
+        end)
+
+        local guiVisible = true
+        toggleMoveBtn.MouseButton1Click:Connect(function()
+            guiVisible = not guiVisible
+            frame.Visible = guiVisible
+            toggleMoveBtn.Text = guiVisible and "Hide GUI" or "Show GUI"
+        end)
     end
 })
 
