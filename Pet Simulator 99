@@ -368,7 +368,7 @@ end
 local RemoteSpyButton = OtherTab:CreateButton({
     Name = "RemoteSpy (For Mobile)",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/realredz/SimpleSpy/refs/heads/main/Mobile.lua"))()
+        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Simple-Spy-32021"))()
     end
 })
 
