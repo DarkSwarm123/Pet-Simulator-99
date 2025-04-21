@@ -46,6 +46,118 @@ local function Wait(x)
     end
 end
 
+-- Utwórz czarną nakładkę (raz, na start)
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "RenderToggleGui"
+screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = true
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local background = Instance.new("Frame")
+background.Size = UDim2.new(1, 0, 1, 0)
+background.Position = UDim2.new(0, 0, 0, 0)
+background.BackgroundColor3 = Color3.new(0, 0, 0)
+background.ZIndex = 10
+background.Visible = false
+background.Parent = screenGui
+
+-- Funkcja ustawiająca render + nakładkę
+local function setRendering(state)
+    game:GetService("RunService"):Set3dRenderingEnabled(state)
+    background.Visible = not state
+end
+
+-- Rayfield Toggle
+OtherTab:CreateToggle({
+    Name = "No Rendering",
+    CurrentValue = false,
+    Callback = function(Value)
+        setRendering(not Value)
+    end,
+})
+
+local function toggleDiamondsGui(Value)
+    if Value then
+        -- Tworzymy GUI
+        local screenGui = Instance.new("ScreenGui")
+        screenGui.Name = "DiamondsGui"
+        screenGui.ResetOnSpawn = false
+        screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+        -- Frame
+        local frame = Instance.new("Frame")
+        frame.Size = UDim2.new(0, 200, 0, 100)
+        frame.Position = UDim2.new(0.5, -100, 0.1, 0)
+        frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        frame.Active = true
+        frame.Draggable = true
+        frame.Parent = screenGui
+
+        -- Zaokrąglone rogi
+        local corner = Instance.new("UICorner")
+        corner.CornerRadius = UDim.new(0, 10)
+        corner.Parent = frame
+
+        -- Label
+        local label = Instance.new("TextLabel")
+        label.Size = UDim2.new(1, 0, 0.8, 0)
+        label.Position = UDim2.new(0, 0, 0, 0)
+        label.BackgroundTransparency = 1
+        label.TextColor3 = Color3.new(1, 1, 1)
+        label.TextScaled = true
+        label.Font = Enum.Font.GothamBold
+        label.Text = "Diamonds: ..."
+        label.Parent = frame
+
+        -- Obsługuje zmiany wartości diamentów
+        local function formatNumber(n)
+            local formatted = tostring(n)
+            while true do
+                formatted, k = formatted:gsub("^(-?%d+)(%d%d%d)", "%1.%2")
+                if k == 0 then break end
+            end
+            return formatted
+        end
+
+        -- Track diamentów
+        local player = game.Players.LocalPlayer
+        local leaderstats = player:WaitForChild("leaderstats")
+        local diamonds = leaderstats:FindFirstChild("💎 Diamonds") or leaderstats:FindFirstChild("\240\159\146\142 Diamonds")
+
+        if diamonds and diamonds:IsA("IntValue") then
+            local startTime = tick()
+            local startValue = diamonds.Value
+
+            diamonds:GetPropertyChangedSignal("Value"):Connect(function()
+                local currentValue = diamonds.Value
+                local now = tick()
+                local minutes = (now - startTime) / 60
+                local gain = currentValue - startValue
+                local perMinute = math.floor(gain / minutes + 0.5)
+
+                label.Text = "Diamonds: " .. formatNumber(currentValue) ..
+                    "\nChange: " .. (perMinute >= 0 and "+" or "") .. formatNumber(perMinute) .. " / min"
+            end)
+        else
+            label.Text = "Diamonds not found"
+        end
+    else
+        -- Jeśli chcemy wyłączyć tracker, usuwamy GUI
+        local existingGui = game.Players.LocalPlayer:FindFirstChild("PlayerGui"):FindFirstChild("DiamondsGui")
+        if existingGui then
+            existingGui:Destroy()
+        end
+    end
+end
+
+OtherTab:CreateToggle({
+    Name = "Diamonds Tracker",
+    CurrentValue = false,
+    Callback = function(Value)
+        toggleDiamondsGui(Value)
+    end,
+})
+
 -- Zmienna sterująca cyklem ogrodu
 local gardenCycleEnabled = false
 
@@ -96,7 +208,7 @@ end
 
 -- Tworzymy Toggle do uruchamiania cyklu ogrodu
 local GardenCycleToggle = GardenTab:CreateToggle({
-    Name = "Enable garden cycle (Plant + Grow + Claim)",
+    Name = "Enable Garden Farming",
     CurrentValue = false,
     Flag = "GardenCycleToggle",
     Callback = function(Value)
@@ -127,20 +239,39 @@ local SeedBagToggle = GardenTab:CreateToggle({
     Flag = "SeedBagToggle",
     Callback = function(Value)
         SeedBagEnabled = Value
-        -- Sprawdzamy, czy przełącznik jest włączony
-        if SeedBagEnabled then
-            -- Rozpoczynamy pętlę otwierania paczek w nowym wątku
-            task.spawn(function()
-                while SeedBagEnabled do
-                    local args = {
-                        [1] = "Seed Bag"
-                    }
-                    -- Otwórz paczkę
-                    game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer(unpack(args))
-                    Wait(2)  -- Małe opóźnienie dla stabilności
+
+        local miscItemName = "Seed Bag"
+
+        -- Otwieranie przy użyciu Lib lub fallback bez Lib
+        task.spawn(function()
+            while SeedBagEnabled do
+                local Lib = getgenv().hgLib  -- Sprawdzanie dostępności `Lib` w każdej iteracji
+                if Lib then
+                    -- Funkcja do pobrania przedmiotu z Misc
+                    local function getMiscItem(id)
+                        for index, item in pairs(Lib.Save.Get().Inventory.Misc or {}) do
+                            if item.id == id then
+                                return index, item
+                            end
+                        end
+                        return nil
+                    end
+
+                    -- Sprawdzanie przedmiotu i otwieranie paczki
+                    local index, item = getMiscItem(miscItemName)
+                    if index and item then
+                        game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer(miscItemName)
+                        Wait(3)
+                    else
+                        break
+                    end
+                else
+                    -- Otwieranie paczek bez Lib (fallback)
+                    game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer(miscItemName)
+                    Wait(3)
                 end
-            end)
-        end
+            end
+        end)
     end
 })
 
@@ -354,16 +485,6 @@ task.spawn(function()
     end
 end)
 
--- Funkcja do używania zabawek
-local function UseToys() 
-    game:GetService("ReplicatedStorage").Network.SqueakyToy_Consume:InvokeServer()
-
-    for i = 1, 2 do
-        game:GetService("ReplicatedStorage").Network.ToyBall_Consume:InvokeServer()   
-        game:GetService("ReplicatedStorage").Network.ToyBone_Consume:InvokeServer()
-    end
-end
-
 -- Przycisk uruchamiający RemoteSpy (dla mobilnych urządzeń)
 local RemoteSpyButton = OtherTab:CreateButton({
     Name = "RemoteSpy (For Mobile)",
@@ -372,10 +493,4 @@ local RemoteSpyButton = OtherTab:CreateButton({
     end
 })
 
--- Przycisk uruchamiający używanie zabawek
-local UseToysButton = OtherTab:CreateButton({
-    Name = "Use Toys",
-    Callback = function()
-        UseToys()
-    end
-})
+
