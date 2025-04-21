@@ -8,7 +8,7 @@ local Window = Rayfield:CreateWindow({
     LoadingSubtitle = "by Dark",
     ConfigurationSaving = {
        Enabled = false,
-       FolderName = nil,
+       FolderName = RayfieldGUIconfig,
        FileName = "Pet Simulator 99"
     },
     Discord = {
