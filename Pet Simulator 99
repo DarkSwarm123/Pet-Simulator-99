@@ -515,7 +515,7 @@ task.spawn(function()
     game:GetService("Players").LocalPlayer.Idled:Connect(function()
         vu:CaptureController()
         vu:ClickButton2(Vector2.new())
-        print("Anti-AFK: zapobieganie rozłączeniu.")
+        warn("Anti-AFK: zapobieganie rozłączeniu.")
     end)
 end)
 
