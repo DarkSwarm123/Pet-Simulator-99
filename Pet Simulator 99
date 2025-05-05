@@ -416,12 +416,32 @@ MinigamesTab:CreateButton({
     end
 })
 
+local toggleEnabled = false
+
+MainTab:CreateToggle({
+    Name = "Auto Pet Surge Ultimate",
+    CurrentValue = false,
+    Callback = function(Value)
+        toggleEnabled = Value
+
+        task.spawn(function()
+            while toggleEnabled do
+                local args = {
+                    [1] = "Pet Surge"
+                }
+                game:GetService("ReplicatedStorage").Network:FindFirstChild("Ultimates: Activate"):InvokeServer(unpack(args))
+                task.wait(7)
+            end
+        end)
+    end,
+})
+
 -- Zmienna sterująca Auto Fuse
 local autoFuseEnabled = false
 local autoFuseRunning = false  -- Zmienna kontrolująca stan pętli
 
 -- Przełącznik Auto Fuse
-local FuseToggle = AutoFuseTab:CreateToggle({
+local FuseToggle = MainTab:CreateToggle({
     Name = "Włącz Auto Fuse",
     CurrentValue = false,
     Flag = "AutoFuseToggle",
