@@ -33,7 +33,7 @@ local function Wait(x)
         task.wait()
     end
 
-    local logTime = false  -- Ustaw true, by włączyć logowanie
+    local logTime = true  -- Ustaw true, by włączyć logowanie
 
     if logTime then
         local totalTick = tick() - startTick
