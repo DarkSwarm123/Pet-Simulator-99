@@ -418,7 +418,7 @@ MinigamesTab:CreateButton({
 
 local toggleEnabled = false
 
-local Toggle = MainTab:CreateToggle({
+local UltimateToggle = MainTab:CreateToggle({
     Name = "Auto Pet Surge Ultimate",
     CurrentValue = false,
     Callback = function(Value)
@@ -436,7 +436,7 @@ local Toggle = MainTab:CreateToggle({
     end,
 })
 
-local Toggle = MainTab:CreateToggle({
+local DaycareToggle = MainTab:CreateToggle({
     Name = "Auto Daycare",
     CurrentValue = false,
     Flag = "AutoDaycare",
