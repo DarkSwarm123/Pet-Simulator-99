@@ -20,14 +20,10 @@ local Window = Rayfield:CreateWindow({
 })
 
 -- Tworzymy zakładkę
-MainTab = Window:CreateTab("Main", 4483362458)
-
-OtherTab = Window:CreateTab("Other", 4483362458)
-
-GardenTab = Window:CreateTab("Garden", 4483362458)
-end
-
-MinigamesTab = Window:CreateTab("Minigames", 4483362458)
+local MainTab = Window:CreateTab("Auto Fuse", 4483362458)
+local OtherTab = Window:CreateTab("Other", 4483362458)
+local GardenTab = Window:CreateTab("Garden", 4483362458)
+local MinigamesTab = Window:CreateTab("Minigames", 4483362458)
 
 local function Wait(x)
     local startTick = tick()  -- Czas rzeczywisty
@@ -69,7 +65,7 @@ local function setRendering(state)
 end
 
 -- Rayfield Toggle
-local Toggle = OtherTab:CreateToggle({
+OtherTab:CreateToggle({
     Name = "No Rendering",
     CurrentValue = false,
     Callback = function(Value)
@@ -151,7 +147,7 @@ local function toggleDiamondsGui(Value)
     end
 end
 
-local Toggle = OtherTab:CreateToggle({
+OtherTab:CreateToggle({
     Name = "Diamonds Tracker",
     CurrentValue = false,
     Callback = function(Value)
@@ -420,50 +416,6 @@ MinigamesTab:CreateButton({
     end
 })
 
-local toggleEnabled = false
-
-local Toggle = MainTab:CreateToggle({
-    Name = "Auto Pet Surge Ultimate",
-    CurrentValue = false,
-    Callback = function(Value)
-        toggleEnabled = Value
-
-        task.spawn(function()
-            while toggleEnabled do
-                local args = {
-                    [1] = "Pet Surge"
-                }
-                game:GetService("ReplicatedStorage").Network:FindFirstChild("Ultimates: Activate"):InvokeServer(unpack(args))
-                task.wait(7)
-            end
-        end)
-    end,
-})
-
-local Toggle = MainTab:CreateToggle({
-    Name = "Auto Daycare",
-    CurrentValue = false,
-    Flag = "AutoDaycare",
-    Callback = function(Value)
-        getgenv().AutoDaycare = Value
-        task.spawn(function()
-            while getgenv().AutoDaycare do
-                pcall(function()
-                    game:GetService("ReplicatedStorage").Network:FindFirstChild("Daycare: Claim"):InvokeServer()
-                    task.wait(1)
-                    local args = {
-                        [1] = {
-                            ["e7bedab3bb7240d3827ac20380c9850b"] = 55
-                        }
-                    }
-                    game:GetService("ReplicatedStorage").Network:FindFirstChild("Daycare: Enroll"):InvokeServer(unpack(args))
-                end)
-                task.wait(30) -- przerwa między cyklami, możesz zmienić
-            end
-        end)
-    end,
-})
-
 -- Zmienna sterująca Auto Fuse
 local autoFuseEnabled = false
 local autoFuseRunning = false  -- Zmienna kontrolująca stan pętli
@@ -537,13 +489,4 @@ local RemoteSpyButton = OtherTab:CreateButton({
         loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Simple-Spy-32021"))()
     end
 })
-
-task.spawn(function()
-    local vu = game:GetService("VirtualUser")
-    game:GetService("Players").LocalPlayer.Idled:Connect(function()
-        vu:CaptureController()
-        vu:ClickButton2(Vector2.new())
-        warn("Anti-AFK: zapobieganie rozłączeniu.")
-    end)
-end)
 
