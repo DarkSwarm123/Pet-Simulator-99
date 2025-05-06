@@ -534,3 +534,18 @@ local RemoteSpyButton = OtherTab:CreateButton({
     end
 })
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Network = ReplicatedStorage:WaitForChild("Network")
+local UpdateTimer = Network:WaitForChild("Idle Tracking: Update Timer")
+local StopTimer = Network:WaitForChild("Idle Tracking: Stop Timer")
+
+local function AntiAFK()
+    local oldFire = UpdateTimer.FireServer
+
+    UpdateTimer.FireServer = function(self, ...)
+        oldFire(self, ...) -- wykonuje oryginalne zachowanie
+        StopTimer:FireServer() -- natychmiast przerywa AFK
+    end
+end
+
+task.spawn(AntiAFK)
