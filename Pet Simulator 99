@@ -27,6 +27,7 @@ local OtherTab = Window:CreateTab("Other", 4483362458)
 local GardenTab
 if game.PlaceId == 8737899170 then
 GardenTab = Window:CreateTab("Garden", 4483362458)
+else break
 end
 
 local MinigamesTab = Window:CreateTab("Minigames", 4483362458)
