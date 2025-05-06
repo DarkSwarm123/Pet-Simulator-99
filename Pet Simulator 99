@@ -498,7 +498,7 @@ local RemoteSpyButton = OtherTab:CreateButton({
 local SeedBagEnabled = false
 local TAB 
 if game.PlaceId == 8737899170 then
-TAB = GardenTab
+TAB = _G.GardenTab
 else
 TAB = OtherTab 
 end
