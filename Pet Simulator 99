@@ -95,15 +95,6 @@ local function toggleDiamondsGui(Value)
         corner.CornerRadius = UDim.new(0, 10)
         corner.Parent = frame
 
- -- Track diamentów
-        local player = game.Players.LocalPlayer
-        local leaderstats = player:WaitForChild("leaderstats")
-        local diamonds = leaderstats:FindFirstChild("💎 Diamonds") or leaderstats:FindFirstChild("\240\159\146\142 Diamonds")
-
-        if diamonds and diamonds:IsA("IntValue") then
-            local startTime = tick()
-            local startValue = diamonds.Value
-
         -- Label
         local label = Instance.new("TextLabel")
         label.Size = UDim2.new(1, 0, 0.8, 0)
@@ -112,7 +103,7 @@ local function toggleDiamondsGui(Value)
         label.TextColor3 = Color3.new(1, 1, 1)
         label.TextScaled = true
         label.Font = Enum.Font.GothamBold
-        label.Text = "Diamonds: diamonds.Value"
+        label.Text = "Diamonds: ..diamonds.Value.."
         label.Parent = frame
 
         -- Obsługuje zmiany wartości diamentów
@@ -124,6 +115,16 @@ local function toggleDiamondsGui(Value)
             end
             return formatted
         end
+
+
+ -- Track diamentów
+        local player = game.Players.LocalPlayer
+        local leaderstats = player:WaitForChild("leaderstats")
+        local diamonds = leaderstats:FindFirstChild("💎 Diamonds") or leaderstats:FindFirstChild("\240\159\146\142 Diamonds")
+
+        if diamonds and diamonds:IsA("IntValue") then
+            local startTime = tick()
+            local startValue = diamonds.Value
          diamonds:GetPropertyChangedSignal("Value"):Connect(function()
                 local currentValue = diamonds.Value
                 local now = tick()
