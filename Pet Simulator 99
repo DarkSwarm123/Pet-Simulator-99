@@ -21,8 +21,13 @@ local Window = Rayfield:CreateWindow({
 
 -- Tworzymy zakładkę
 local MainTab = Window:CreateTab("Main", 4483362458)
+
 local OtherTab = Window:CreateTab("Other", 4483362458)
+
+if game.PlaceId == 8737899170 then
 local GardenTab = Window:CreateTab("Garden", 4483362458)
+end
+
 local MinigamesTab = Window:CreateTab("Minigames", 4483362458)
 
 local function Wait(x)
@@ -225,50 +230,6 @@ local GardenCycleToggle = GardenTab:CreateToggle({
             -- Rozpoczynamy cykl ogrodu
             gardenCycle()  -- Funkcja teraz sadzi rośliny równocześnie
         end
-    end
-})
-
-local SeedBagEnabled = false
-
-local SeedBagToggle = GardenTab:CreateToggle({
-    Name = "Open Seed Bag",
-    CurrentValue = false,
-    Flag = "SeedBagToggle",
-    Callback = function(Value)
-        SeedBagEnabled = Value
-
-        local miscItemName = "Seed Bag"
-
-        -- Otwieranie przy użyciu Lib lub fallback bez Lib
-        task.spawn(function()
-            while SeedBagEnabled do
-                local Lib = getgenv().hgLib  -- Sprawdzanie dostępności `Lib` w każdej iteracji
-                if Lib then
-                    -- Funkcja do pobrania przedmiotu z Misc
-                    local function getMiscItem(id)
-                        for index, item in pairs(Lib.Save.Get().Inventory.Misc or {}) do
-                            if item.id == id then
-                                return index, item
-                            end
-                        end
-                        return nil
-                    end
-
-                    -- Sprawdzanie przedmiotu i otwieranie paczki
-                    local index, item = getMiscItem(miscItemName)
-                    if index and item then
-                        game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer(miscItemName)
-                        Wait(9)
-                    else
-                        break
-                    end
-                else
-                    -- Otwieranie paczek bez Lib (fallback)
-                    game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer(miscItemName)
-                    Wait(9)
-                end
-            end
-        end)
     end
 })
 
@@ -531,6 +492,56 @@ local RemoteSpyButton = OtherTab:CreateButton({
     Name = "RemoteSpy (For Mobile)",
     Callback = function()
         loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Simple-Spy-32021"))()
+    end
+})
+
+local SeedBagEnabled = false
+local TAB 
+if game.PlaceId == 8737899170 then
+TAB = GardenTab
+else
+TAB = OtherTab 
+end
+
+local SeedBagToggle = TAB:CreateToggle({
+    Name = "Open Seed Bag",
+    CurrentValue = false,
+    Flag = "SeedBagToggle",
+    Callback = function(Value)
+        SeedBagEnabled = Value
+
+        local miscItemName = "Seed Bag"
+
+        -- Otwieranie przy użyciu Lib lub fallback bez Lib
+        task.spawn(function()
+            while SeedBagEnabled do
+                local Lib = getgenv().hgLib  -- Sprawdzanie dostępności `Lib` w każdej iteracji
+                if Lib then
+                    -- Funkcja do pobrania przedmiotu z Misc
+                    local function getMiscItem(id)
+                        for index, item in pairs(Lib.Save.Get().Inventory.Misc or {}) do
+                            if item.id == id then
+                                return index, item
+                            end
+                        end
+                        return nil
+                    end
+
+                    -- Sprawdzanie przedmiotu i otwieranie paczki
+                    local index, item = getMiscItem(miscItemName)
+                    if index and item then
+                        game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer(miscItemName)
+                        Wait(9)
+                    else
+                        break
+                    end
+                else
+                    -- Otwieranie paczek bez Lib (fallback)
+                    game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer(miscItemName)
+                    Wait(9)
+                end
+            end
+        end)
     end
 })
 
