@@ -20,14 +20,14 @@ local Window = Rayfield:CreateWindow({
 })
 
 -- Tworzymy zakładkę
-local MainTab = Window:CreateTab("Main", 4483362458)
+MainTab = Window:CreateTab("Main", 4483362458)
 
-local OtherTab = Window:CreateTab("Other", 4483362458)
+OtherTab = Window:CreateTab("Other", 4483362458)
 
-local GardenTab = Window:CreateTab("Garden", 4483362458)
+GardenTab = Window:CreateTab("Garden", 4483362458)
 end
 
-local MinigamesTab = Window:CreateTab("Minigames", 4483362458)
+MinigamesTab = Window:CreateTab("Minigames", 4483362458)
 
 local function Wait(x)
     local startTick = tick()  -- Czas rzeczywisty
