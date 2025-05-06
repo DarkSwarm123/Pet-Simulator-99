@@ -539,13 +539,20 @@ local Network = ReplicatedStorage:WaitForChild("Network")
 local UpdateTimer = Network:WaitForChild("Idle Tracking: Update Timer")
 local StopTimer = Network:WaitForChild("Idle Tracking: Stop Timer")
 
-local function AntiAFK()
-    local oldFire = UpdateTimer.FireServer
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-    UpdateTimer.FireServer = function(self, ...)
-        oldFire(self, ...) -- wykonuje oryginalne zachowanie
-        StopTimer:FireServer() -- natychmiast przerywa AFK
-    end
+-- Funkcja wysyłająca "Stop Timer"
+local function sendStopTimer()
+    ReplicatedStorage.Network:FindFirstChild("Idle Tracking: Stop Timer"):FireServer()
+    print("Wysłano Stop Timer.")
 end
 
-task.spawn(AntiAFK)
+-- Funkcja, która wysyła "Stop Timer" co losowy czas (od 3 do 7 minut)
+task.spawn(function()
+    while true do
+        -- Czekamy na losowy czas od 3 do 7 minut (180-420 sekund)
+        local waitTime = math.random(180, 420)
+        task.wait(waitTime)  -- Czekaj losowy czas
+        sendStopTimer()  -- Wyślij "Stop Timer"
+    end
+end)
