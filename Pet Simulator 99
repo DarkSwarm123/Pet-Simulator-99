@@ -499,10 +499,9 @@ local RemoteSpyButton = OtherTab:CreateButton({
 local SeedBagEnabled = false
 local TAB
 if game.PlaceId == 8737899170 then
-TAB = GardenTab
+TAB = GardenTab or OtherTab 
 end
-if GardenTab == nil then 
-TAB = OtherTab 
+
 
 local SeedBagToggle = TAB:CreateToggle({
     Name = "Open Seed Bag",
