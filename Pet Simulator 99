@@ -258,14 +258,14 @@ local SeedBagToggle = GardenTab:CreateToggle({
                     local index, item = getMiscItem(miscItemName)
                     if index and item then
                         game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer(miscItemName)
-                        Wait(3)
+                        Wait(13)
                     else
                         break
                     end
                 else
                     -- Otwieranie paczek bez Lib (fallback)
                     game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer(miscItemName)
-                    Wait(3)
+                    Wait(13)
                 end
             end
         end)
