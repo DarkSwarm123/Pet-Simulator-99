@@ -20,7 +20,7 @@ local Window = Rayfield:CreateWindow({
 })
 
 -- Tworzymy zakładkę
-local MainTab = Window:CreateTab("Auto Fuse", 4483362458)
+local MainTab = Window:CreateTab("Main", 4483362458)
 local OtherTab = Window:CreateTab("Other", 4483362458)
 local GardenTab = Window:CreateTab("Garden", 4483362458)
 local MinigamesTab = Window:CreateTab("Minigames", 4483362458)
