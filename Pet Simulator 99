@@ -204,6 +204,7 @@ local function gardenCycle()
             totalMisc, totalSeed = getTotalAmountFromSections()
         end
 
+        -- Sadzenie
         for i = 1, 10 do
             task.spawn(function()
                 local args = {"FlowerGarden", "PlantSeed", i, "Diamond"}
@@ -212,6 +213,7 @@ local function gardenCycle()
             task.wait(2)
         end
 
+        -- Przyspieszanie
         for i = 1, 10 do
             task.spawn(function()
                 local args = {"FlowerGarden", "InstaGrowSeed", i}
@@ -220,6 +222,7 @@ local function gardenCycle()
             task.wait(2)
         end
 
+        -- Zbieranie
         for i = 1, 10 do
             task.spawn(function()
                 local args = {"FlowerGarden", "ClaimPlant", i}
