@@ -178,6 +178,7 @@ local function checkItemAmount(itemName, minAmount)
     return false
 end
 
+local gardenCycleEnabled= false
 local function gardenCycle()
     while gardenCycleEnabled do
         -- Sprawdzanie, czy mamy wystarczającą ilość przedmiotów
