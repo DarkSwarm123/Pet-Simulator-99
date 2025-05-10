@@ -217,7 +217,7 @@ local SeedBagToggle = GardenTab:CreateToggle({
     Flag = "SeedBagToggle",
     Callback = function(Value)
         SeedBagEnabled = Value
-
+      while SeedBagEnabled do
         task.spawn(function()
                                 game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer("Seed Bag")
                 end
