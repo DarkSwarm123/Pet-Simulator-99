@@ -175,61 +175,34 @@ local function checkItemAmount(itemName)
     return false
 end
 
-local function getTotalAmountFromSections()
-    local inventory = Save.Get().Inventory
-    local totalMisc = 0
-    local totalSeed = 0
-
-    for _, item in pairs(inventory.Misc or {}) do
-        if item.id == "Insta Plant Capsule" and item._am then
-            totalMisc += item._am
-        end
-    end
-
-    for _, item in pairs(inventory.Seed or {}) do
-        if item.id == "Diamond Seed" and item._am then
-            totalSeed += item._am
-        end
-    end
-
-    return totalMisc, totalSeed
-end
-
 local function gardenCycle()
     while gardenCycleEnabled do
-        local totalMisc, totalSeed = getTotalAmountFromSections()
-
-        while (totalMisc < 10 or totalSeed < 10) and gardenCycleEnabled do
-            task.wait()
-            totalMisc, totalSeed = getTotalAmountFromSections()
-        end
-
-        -- Sadzenie
+        -- Sadzenie równolegle
         for i = 1, 10 do
             task.spawn(function()
                 local args = {"FlowerGarden", "PlantSeed", i, "Diamond"}
                 game:GetService("ReplicatedStorage").Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
             end)
-            task.wait(2)
         end
+        Wait(2)
 
-        -- Przyspieszanie
+        -- Przyspieszanie wzrostu równolegle
         for i = 1, 10 do
             task.spawn(function()
                 local args = {"FlowerGarden", "InstaGrowSeed", i}
                 game:GetService("ReplicatedStorage").Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
             end)
-            task.wait(2)
         end
+        Wait(2)
 
-        -- Zbieranie
+        -- Zbieranie równolegle
         for i = 1, 10 do
             task.spawn(function()
                 local args = {"FlowerGarden", "ClaimPlant", i}
                 game:GetService("ReplicatedStorage").Network.Instancing_FireCustomFromClient:FireServer(unpack(args))
             end)
-            task.wait(2)
         end
+        Wait(2)
     end
 end
 
