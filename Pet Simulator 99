@@ -159,7 +159,7 @@ OtherTab:CreateToggle({
 local gardenCycleEnabled = false
 local function gardenCycle()
     while gardenCycleEnabled do
-                                                  for i = 1, 10 do
+                                                      for i = 1, 10 do
                 task.spawn(function()
                     local args = {"FlowerGarden", "PlantSeed", i, "Diamond"}
                     game:GetService("ReplicatedStorage").Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
