@@ -198,7 +198,7 @@ local function gardenCycle()
 
             for i = 1, 10 do
                 task.spawn(function()
-                    local args = {"FlowerGarden", "InstaGrowSeed", i}
+                    local args = {"FlowerGarden", "InstaGrowSeed", i, "Diamond"}
                     game:GetService("ReplicatedStorage").Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
                 end)
                 Wait(3)  
