@@ -203,6 +203,8 @@ local function gardenCycle()
         local totalMisc, totalSeed = getTotalAmountFromSections()
 
         while totalMisc < 10 or totalSeed < 10 do
+warn("..totalMisc..")
+warn("..totalSeed..")
             task.wait()
             totalMisc, totalSeed = getTotalAmountFromSections()
         end
