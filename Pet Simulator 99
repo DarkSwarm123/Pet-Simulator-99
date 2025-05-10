@@ -175,23 +175,20 @@ local function checkItemAmount(itemName)
     return false
 end
 
--- Funkcja do sumowania ilości odpowiednich itemów z obu sekcji
 local function getTotalAmountFromSections()
     local inventory = Save.Get().Inventory
     local totalMisc = 0
     local totalSeed = 0
 
-    -- Zliczanie Insta Plant Capsule z sekcji Misc
     for _, item in pairs(inventory.Misc or {}) do
-        if item.id == "Insta Plant Capsule" then
-            totalMisc = item._am or 0
+        if item.id == "Insta Plant Capsule" and item._am then
+            totalMisc += item._am
         end
     end
 
-    -- Zliczanie Diamond Seed z sekcji Seed
     for _, item in pairs(inventory.Seed or {}) do
-        if item.id == "Diamond Seed" then
-            totalSeed = item._am or 0
+        if item.id == "Diamond Seed" and item._am then
+            totalSeed += item._am
         end
     end
 
@@ -202,9 +199,7 @@ local function gardenCycle()
     while gardenCycleEnabled do
         local totalMisc, totalSeed = getTotalAmountFromSections()
 
-        while totalMisc < 10 or totalSeed < 10 do
-warn(totalMisc)
-warn(totalSeed)
+        while (totalMisc < 10 or totalSeed < 10) and gardenCycleEnabled do
             task.wait()
             totalMisc, totalSeed = getTotalAmountFromSections()
         end
@@ -234,8 +229,6 @@ warn(totalSeed)
         end
     end
 end
--- Funkcja do uruchomienia cyklu ogrodu
-
 
 local GardenCycleToggle = GardenTab:CreateToggle({
     Name = "Enable Garden Farming",
