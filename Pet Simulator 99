@@ -178,7 +178,7 @@ local function checkItemAmount(itemName, minAmount)
     return false
 end
 
-local gardenCycleEnabled= false
+local gardenCycleEnabled = false
 local function gardenCycle()
     while gardenCycleEnabled do
         -- Sprawdzanie, czy mamy wystarczającą ilość przedmiotów
@@ -233,7 +233,7 @@ local GardenCycleToggle = GardenTab:CreateToggle({
                 game:GetService("ReplicatedStorage").Network.Instancing_FireCustomFromClient:FireServer(unpack(args1))
                 task.wait() 
             end
-            gardenCycle()  
+            task.spawn(gardenCycle)  
           end
         end
 })
