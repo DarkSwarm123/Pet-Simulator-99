@@ -161,6 +161,14 @@ local function checkItemAmount(itemName, minAmount)
     minAmount = minAmount or 1
     local inventory = Save.Get().Inventory
 
+for sectionName, section in pairs(inventory) do
+    for _, v in pairs(section) do
+        if v.id and string.lower(v.id):find("diamond") then
+            warn("Znaleziono item:", v.id, "w sekcji:", sectionName, "ilość:", v._am)
+        end
+    end
+end
+
     local sections = {"Misc", "Seed"}
     for _, sectionName in ipairs(sections) do
         local section = inventory[sectionName]
