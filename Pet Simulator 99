@@ -198,49 +198,42 @@ local function getTotalAmountFromSections()
     return totalMisc, totalSeed
 end
 
--- Funkcja do uruchomienia cyklu ogrodu
 local function gardenCycle()
     while gardenCycleEnabled do
-        -- Czekaj aż będzie co najmniej 10 Insta Plant Capsule i 10 Diamond Seed
-        while true do
-            local miscCount, seedCount = getTotalAmountFromSections()
+        local totalMisc, totalSeed = getTotalAmountFromSections()
 
-            if miscCount >= 10 and seedCount >= 10 then
-                break -- jeśli mamy co najmniej 10 Insta Plant Capsule i 10 Diamond Seed
-            end
-
-            if not gardenCycleEnabled then return end -- jeśli Toggle jest wyłączony, przerywamy
+        while totalMisc < 10 or totalSeed < 10 do
             task.wait()
+            totalMisc, totalSeed = getTotalAmountFromSections()
         end
 
-        -- Sadzenie
         for i = 1, 10 do
             task.spawn(function()
                 local args = {"FlowerGarden", "PlantSeed", i, "Diamond"}
                 game:GetService("ReplicatedStorage").Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
             end)
-            Wait(2)
+            task.wait(2)
         end
 
-        -- Przyspieszanie
         for i = 1, 10 do
             task.spawn(function()
                 local args = {"FlowerGarden", "InstaGrowSeed", i}
                 game:GetService("ReplicatedStorage").Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
             end)
-            Wait(2)
+            task.wait(2)
         end
 
-        -- Zbieranie
         for i = 1, 10 do
             task.spawn(function()
                 local args = {"FlowerGarden", "ClaimPlant", i}
                 game:GetService("ReplicatedStorage").Network.Instancing_FireCustomFromClient:FireServer(unpack(args))
             end)
-            Wait(2)
+            task.wait(2)
         end
     end
 end
+-- Funkcja do uruchomienia cyklu ogrodu
+
 
 local GardenCycleToggle = GardenTab:CreateToggle({
     Name = "Enable Garden Farming",
