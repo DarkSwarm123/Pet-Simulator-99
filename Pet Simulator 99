@@ -182,7 +182,7 @@ local function gardenCycle()
     while gardenCycleEnabled do
         -- Sprawdzanie, czy mamy wystarczającą ilość przedmiotów
         local hasDiamondSeeds = checkItemAmount("Diamond Seed", 10)
-        local hasInstaPlantCapsules = checkItemAmount("Insta-Plant Capsule", 10)
+        local hasInstaPlantCapsules = checkItemAmount("Insta Plant Capsule", 10)
 
       
         if hasDiamondSeeds and hasInstaPlantCapsules then
