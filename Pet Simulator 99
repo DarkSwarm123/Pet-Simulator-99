@@ -157,7 +157,8 @@ OtherTab:CreateToggle({
 
 local Save = require(game:GetService("ReplicatedStorage"):WaitForChild("Library"):WaitForChild("Client"):WaitForChild("Save"))
 
-local function checkItemAmount(itemName)    
+local function checkItemAmount(itemName, minAmount)
+    minAmount = minAmount or 1
     local inventory = Save.Get().Inventory
 
     local sections = {"Misc", "Seed"}
@@ -167,7 +168,9 @@ local function checkItemAmount(itemName)
             for _, v in pairs(section) do
                 if v.id == itemName then
                     local itemAmount = v._am or 0
-                    return itemAmount > 0
+                    if itemAmount >= minAmount then
+                        return true
+                    end
                 end
             end
         end
@@ -177,32 +180,39 @@ end
 
 local function gardenCycle()
     while gardenCycleEnabled do
-        -- Sadzenie równolegle
-        for i = 1, 10 do
-            task.spawn(function()
-                local args = {"FlowerGarden", "PlantSeed", i, "Diamond"}
-                game:GetService("ReplicatedStorage").Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
-            end)
-        end
-        Wait(2)
+        -- Sprawdzanie, czy mamy wystarczającą ilość przedmiotów
+        local hasDiamondSeeds = checkItemAmount("Diamond Seed", 10)
+        local hasInstaPlantCapsules = checkItemAmount("Insta Plant Capsule", 10)
 
-        -- Przyspieszanie wzrostu równolegle
-        for i = 1, 10 do
-            task.spawn(function()
-                local args = {"FlowerGarden", "InstaGrowSeed", i}
-                game:GetService("ReplicatedStorage").Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
-            end)
-        end
-        Wait(2)
+      
+        if hasDiamondSeeds and hasInstaPlantCapsules then
 
-        -- Zbieranie równolegle
-        for i = 1, 10 do
-            task.spawn(function()
-                local args = {"FlowerGarden", "ClaimPlant", i}
-                game:GetService("ReplicatedStorage").Network.Instancing_FireCustomFromClient:FireServer(unpack(args))
-            end)
+            for i = 1, 10 do
+                task.spawn(function()
+                    local args = {"FlowerGarden", "PlantSeed", i, "Diamond"}
+                    game:GetService("ReplicatedStorage").Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
+                end)
+                Wait(3)  
+            end
+
+            for i = 1, 10 do
+                task.spawn(function()
+                    local args = {"FlowerGarden", "InstaGrowSeed", i}
+                    game:GetService("ReplicatedStorage").Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
+                end)
+                Wait(3)  
+            end
+
+            for i = 1, 10 do
+                task.spawn(function()
+                    local args = {"FlowerGarden", "ClaimPlant", i}
+                    game:GetService("ReplicatedStorage").Network.Instancing_FireCustomFromClient:FireServer(unpack(args))
+                end)
+                Wait(3)
+            end
+        else
+            task.wait(3)
         end
-        Wait(2)
     end
 end
 
