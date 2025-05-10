@@ -22,7 +22,7 @@ local Window = Rayfield:CreateWindow({
 -- Tworzymy zakładkę
 local MainTab = Window:CreateTab("Main", 4483362458)
 local OtherTab = Window:CreateTab("Other", 4483362458)
-local GardenTab = Window:CreateTab("Garden", 15554896030)
+local GardenTab = Window:CreateTab("Garden", 15555104643)
 local MinigamesTab = Window:CreateTab("Minigames", 4483362458)
 
 local function Wait(x)
@@ -292,7 +292,7 @@ local SeedBagToggle = GardenTab:CreateToggle({
                             Title = "Brak Seed Bag!",
                             Content = "Nie masz więcej Seed Bagów do otwarcia.",
                             Duration = 5,
-                            Image = 4483362458,
+                            Image = 15554896174,
                         })
                         notified = true
                     end
