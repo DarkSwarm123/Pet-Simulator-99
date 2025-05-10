@@ -219,25 +219,9 @@ local SeedBagToggle = GardenTab:CreateToggle({
         SeedBagEnabled = Value
 
         task.spawn(function()
-            local miscItemName = "Seed Bag"
-            local notified = false
-
-            while SeedBagEnabled do
-                if checkItemAmount(miscItemName) then
-                    game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer(miscItemName)
-                    notified = false 
-                else
-                    if not notified then
-                        Rayfield:Notify({
-                            Title = "Brak Seed Bag!",
-                            Content = "Nie masz więcej Seed Bagów do otwarcia.",
-                            Duration = 5,
-                            Image = 15554896174,
-                        })
-                        notified = true
-                    end
+                                game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer("Seed Bag")
                 end
-                Wait(5)
+                Wait(3)
             end
         end)
     end
