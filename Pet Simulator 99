@@ -155,55 +155,99 @@ OtherTab:CreateToggle({
     end,
 })
 
--- Zmienna sterująca cyklem ogrodu
+local Save = require(game:GetService("ReplicatedStorage"):WaitForChild("Library"):WaitForChild("Client"):WaitForChild("Save"))
+
+local function checkItemAmount(itemName)    
+    local inventory = Save.Get().Inventory
+
+    local sections = {"Misc", "Seed"}
+    for _, sectionName in ipairs(sections) do
+        local section = inventory[sectionName]
+        if section then
+            for _, v in pairs(section) do
+                if v.id == itemName then
+                    local itemAmount = v._am or 0
+                    return itemAmount > 0
+                end
+            end
+        end
+    end
+    return false
+end
+
+local function getTotalAmountFromSections()
+    local inventory = Save.Get().Inventory
+    local total = 0
+    local targetIds = {
+        ["Insta Plant Capsule"] = true,
+        ["Diamond Seed"] = true
+    }
+
+    local sections = {inventory.Misc, inventory.Seed}
+    for _, section in ipairs(sections) do
+        if section then
+            for _, item in pairs(section) do
+                if item.id and targetIds[item.id] and item._am then
+                    total += item._am
+                end
+            end
+        end
+    end
+    return total
+end
+
 local gardenCycleEnabled = false
 
--- Funkcja do cyklu sadzenia, przyspieszania wzrostu i zbierania
 local function gardenCycle()
     while gardenCycleEnabled do
-        -- Zasadź nowe rośliny równocześnie
+        if getTotalAmountFromSections() < 10 then
+            warn("Zbyt mało Insta Plant Capsule lub Diamond Seed.")
+            gardenCycleEnabled = false
+            return
+        end
+
+        -- Sadzenie
         for i = 1, 10 do
             task.spawn(function()
-                local args2 = {
+                local args = {
                     [1] = "FlowerGarden",
                     [2] = "PlantSeed",
                     [3] = i,
-                    [4] = "Diamond"
+                    [4] = "Diamond"  -- lub "Diamond Seed" jeśli taka jest prawidłowa nazwa
                 }
-                game:GetService("ReplicatedStorage").Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args2))
-            end)
-            Wait(2)  -- Krótkie opóźnienie między uruchomieniami
-        end
-
-        -- Przyspiesz wzrost roślin równocześnie
-        for i = 1, 10 do
-            task.spawn(function()
-                local args3 = {
-                    [1] = "FlowerGarden",
-                    [2] = "InstaGrowSeed",
-                    [3] = i
-                }
-                game:GetService("ReplicatedStorage").Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args3))
+                game:GetService("ReplicatedStorage").Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
             end)
             Wait(2)
         end
 
-        -- Odebranie nagrody po przyspieszeniu wzrostu równocześnie
+        -- Przyspieszanie
         for i = 1, 10 do
             task.spawn(function()
-                local args1 = {
+                local args = {
+                    [1] = "FlowerGarden",
+                    [2] = "InstaGrowSeed",
+                    [3] = i
+                }
+                game:GetService("ReplicatedStorage").Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
+            end)
+            Wait(2)
+        end
+
+        -- Zbieranie
+        for i = 1, 10 do
+            task.spawn(function()
+                local args = {
                     [1] = "FlowerGarden",
                     [2] = "ClaimPlant",
                     [3] = i
                 }
-                game:GetService("ReplicatedStorage").Network.Instancing_FireCustomFromClient:FireServer(unpack(args1))
+                game:GetService("ReplicatedStorage").Network.Instancing_FireCustomFromClient:FireServer(unpack(args))
             end)
             Wait(2)
         end
     end
 end
 
--- Tworzymy Toggle do uruchamiania cyklu ogrodu
 local GardenCycleToggle = GardenTab:CreateToggle({
     Name = "Enable Garden Farming",
     CurrentValue = false,
@@ -211,7 +255,6 @@ local GardenCycleToggle = GardenTab:CreateToggle({
     Callback = function(Value)
         gardenCycleEnabled = Value
         if gardenCycleEnabled then
-            -- Odbierz nagrodę z rośliny (jednorazowo na początku)
             for i = 1, 10 do
                 local args1 = {
                     [1] = "FlowerGarden",
@@ -219,13 +262,11 @@ local GardenCycleToggle = GardenTab:CreateToggle({
                     [3] = i
                 }
                 game:GetService("ReplicatedStorage").Network.Instancing_FireCustomFromClient:FireServer(unpack(args1))
-                task.wait()  -- Krótkie oczekiwanie, aby akcje były stabilne
+                task.wait() 
             end
-
-            -- Rozpoczynamy cykl ogrodu
-            gardenCycle()  -- Funkcja teraz sadzi rośliny równocześnie
+            gardenCycle()  
+          end
         end
-    end
 })
 
 local SeedBagEnabled = false
@@ -237,36 +278,26 @@ local SeedBagToggle = GardenTab:CreateToggle({
     Callback = function(Value)
         SeedBagEnabled = Value
 
-        local miscItemName = "Seed Bag"
-
-        -- Otwieranie przy użyciu Lib lub fallback bez Lib
         task.spawn(function()
-            while SeedBagEnabled do
-                local Lib = getgenv().hgLib  -- Sprawdzanie dostępności `Lib` w każdej iteracji
-                if Lib then
-                    -- Funkcja do pobrania przedmiotu z Misc
-                    local function getMiscItem(id)
-                        for index, item in pairs(Lib.Save.Get().Inventory.Misc or {}) do
-                            if item.id == id then
-                                return index, item
-                            end
-                        end
-                        return nil
-                    end
+            local miscItemName = "Seed Bag"
+            local notified = false
 
-                    -- Sprawdzanie przedmiotu i otwieranie paczki
-                    local index, item = getMiscItem(miscItemName)
-                    if index and item then
-                        game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer(miscItemName)
-                        Wait(9)
-                    else
-                        break
-                    end
-                else
-                    -- Otwieranie paczek bez Lib (fallback)
+            while SeedBagEnabled do
+                if checkItemAmount(miscItemName) then
                     game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer(miscItemName)
-                    Wait(9)
+                    notified = false 
+                else
+                    if not notified then
+                        Rayfield:Notify({
+                            Title = "Brak Seed Bag!",
+                            Content = "Nie masz więcej Seed Bagów do otwarcia.",
+                            Duration = 5,
+                            Image = 4483362458,
+                        })
+                        notified = true
+                    end
                 end
+                task.wait(0.1)
             end
         end)
     end
