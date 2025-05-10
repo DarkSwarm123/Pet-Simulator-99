@@ -161,12 +161,15 @@ local function checkItemAmount(itemName, minAmount)
     minAmount = minAmount or 1
     local inventory = Save.Get().Inventory
 
+    -- Sekcje do przeszukania (bez Enchant!)
     local sections = {"Misc", "Seed"}
+
     for _, sectionName in ipairs(sections) do
         local section = inventory[sectionName]
         warn("Sprawdzam sekcję:", sectionName)
         if section then
             for _, v in pairs(section) do
+                if tostring(v.id):lower():find("enchant") then continue end  -- Pomijaj enchanty
                 warn("Znaleziono item:", v.id, "ilość:", v._am)
                 if tostring(v.id) == tostring(itemName) then
                     local itemAmount = v._am or 0
@@ -175,6 +178,8 @@ local function checkItemAmount(itemName, minAmount)
                     end
                 end
             end
+        else
+            warn("Brak sekcji:", sectionName)
         end
     end
     return false
