@@ -155,36 +155,35 @@ OtherTab:CreateToggle({
     end,
 })
 
-
 local gardenCycleEnabled = false
-local function gardenCycle()
+
+local function gardenCycle() 
     while gardenCycleEnabled do
-                                                            for i = 1, 10 do
-                task.spawn(function()
-                    local args = {"FlowerGarden", "PlantSeed", i, "Diamond"}
-                    game:GetService("ReplicatedStorage").Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
-                end)
-                Wait(3)  
-            end
-
-            for i = 1, 10 do
-                task.spawn(function()
-                    local args = {"FlowerGarden", "InstaGrowSeed", i}
-                    game:GetService("ReplicatedStorage").Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
-                end)
-                Wait(3)  
-            end
-
-            for i = 1, 10 do
-                task.spawn(function()
-                    local args = {"FlowerGarden", "ClaimPlant", i}
-                    game:GetService("ReplicatedStorage").Network.Instancing_FireCustomFromClient:FireServer(unpack(args))
-                end)
-                Wait(3)
-            end
-        else
-            task.wait(3)
+        for i = 1, 10 do
+            task.spawn(function()
+                local args = {"FlowerGarden", "PlantSeed", i, "Diamond"}
+                game:GetService("ReplicatedStorage").Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
+            end)
+            task.wait(0.1)
         end
+
+        for i = 1, 10 do
+            task.spawn(function()
+                local args = {"FlowerGarden", "InstaGrowSeed", i}
+                game:GetService("ReplicatedStorage").Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
+            end)
+            task.wait(0.1)
+        end
+
+        for i = 1, 10 do
+            task.spawn(function()
+                local args = {"FlowerGarden", "ClaimPlant", i}
+                game:GetService("ReplicatedStorage").Network.Instancing_FireCustomFromClient:FireServer(unpack(args))
+            end)
+            task.wait(0.1)
+        end
+
+        task.wait(1)
     end
 end
 
@@ -196,17 +195,15 @@ local GardenCycleToggle = GardenTab:CreateToggle({
         gardenCycleEnabled = Value
         if gardenCycleEnabled then
             for i = 1, 10 do
-                local args1 = {
-                    [1] = "FlowerGarden",
-                    [2] = "ClaimPlant",
-                    [3] = i
-                }
-                game:GetService("ReplicatedStorage").Network.Instancing_FireCustomFromClient:FireServer(unpack(args1))
-                task.wait() 
+                task.spawn(function()
+                    local args1 = {"FlowerGarden", "ClaimPlant", i}
+                    game:GetService("ReplicatedStorage").Network.Instancing_FireCustomFromClient:FireServer(unpack(args1))
+                end)
+                task.wait(0.1)
             end
-            task.spawn(gardenCycle)  
-          end
+            task.spawn(gardenCycle)
         end
+    end
 })
 
 local SeedBagEnabled = false
@@ -217,13 +214,14 @@ local SeedBagToggle = GardenTab:CreateToggle({
     Flag = "SeedBagToggle",
     Callback = function(Value)
         SeedBagEnabled = Value
-      while SeedBagEnabled do
-        task.spawn(function()
-                                game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer("Seed Bag")
+        if SeedBagEnabled then
+            task.spawn(function()
+                while SeedBagEnabled do
+                    game:GetService("ReplicatedStorage").Network.GiftBag_Open:InvokeServer("Seed Bag")
+                    Wait(3)
                 end
-                Wait(3)
-            end
-        end)
+            end)
+        end
     end
 })
 
