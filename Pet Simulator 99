@@ -185,6 +185,7 @@ local function gardenCycle()
         local hasDiamondSeeds = checkItemAmount("Diamond Seed", 10)
         local hasInstaPlantCapsules = checkItemAmount("Insta Plant Capsule", 10)
 
+warn("Has Diamond Seeds:", hasDiamondSeeds, "Has Insta Capsules:", hasInstaPlantCapsules)
       
         if hasDiamondSeeds and hasInstaPlantCapsules then
 
