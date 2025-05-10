@@ -175,45 +175,48 @@ local function checkItemAmount(itemName)
     return false
 end
 
+-- Funkcja do sumowania ilości odpowiednich itemów z obu sekcji
 local function getTotalAmountFromSections()
     local inventory = Save.Get().Inventory
-    local total = 0
-    local targetIds = {
-        ["Insta Plant Capsule"] = true,
-        ["Diamond Seed"] = true
-    }
+    local totalMisc = 0
+    local totalSeed = 0
 
-    local sections = {inventory.Misc, inventory.Seed}
-    for _, section in ipairs(sections) do
-        if section then
-            for _, item in pairs(section) do
-                if item.id and targetIds[item.id] and item._am then
-                    total += item._am
-                end
-            end
+    -- Zliczanie Insta Plant Capsule z sekcji Misc
+    for _, item in pairs(inventory.Misc or {}) do
+        if item.id == "Insta Plant Capsule" then
+            totalMisc = item._am or 0
         end
     end
-    return total
+
+    -- Zliczanie Diamond Seed z sekcji Seed
+    for _, item in pairs(inventory.Seed or {}) do
+        if item.id == "Diamond Seed" then
+            totalSeed = item._am or 0
+        end
+    end
+
+    return totalMisc, totalSeed
 end
 
-local gardenCycleEnabled = false
-
+-- Funkcja do uruchomienia cyklu ogrodu
 local function gardenCycle()
     while gardenCycleEnabled do
+        -- Czekaj aż będzie co najmniej 10 Insta Plant Capsule i 10 Diamond Seed
+        while true do
+            local miscCount, seedCount = getTotalAmountFromSections()
 
-        while gardenCycleEnabled and getTotalAmountFromSections() < 10 do
-    task.wait()
-end
+            if miscCount >= 10 and seedCount >= 10 then
+                break -- jeśli mamy co najmniej 10 Insta Plant Capsule i 10 Diamond Seed
+            end
+
+            if not gardenCycleEnabled then return end -- jeśli Toggle jest wyłączony, przerywamy
+            task.wait()
+        end
 
         -- Sadzenie
         for i = 1, 10 do
             task.spawn(function()
-                local args = {
-                    [1] = "FlowerGarden",
-                    [2] = "PlantSeed",
-                    [3] = i,
-                    [4] = "Diamond"  -- lub "Diamond Seed" jeśli taka jest prawidłowa nazwa
-                }
+                local args = {"FlowerGarden", "PlantSeed", i, "Diamond"}
                 game:GetService("ReplicatedStorage").Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
             end)
             Wait(2)
@@ -222,11 +225,7 @@ end
         -- Przyspieszanie
         for i = 1, 10 do
             task.spawn(function()
-                local args = {
-                    [1] = "FlowerGarden",
-                    [2] = "InstaGrowSeed",
-                    [3] = i
-                }
+                local args = {"FlowerGarden", "InstaGrowSeed", i}
                 game:GetService("ReplicatedStorage").Network.Instancing_InvokeCustomFromClient:InvokeServer(unpack(args))
             end)
             Wait(2)
@@ -235,11 +234,7 @@ end
         -- Zbieranie
         for i = 1, 10 do
             task.spawn(function()
-                local args = {
-                    [1] = "FlowerGarden",
-                    [2] = "ClaimPlant",
-                    [3] = i
-                }
+                local args = {"FlowerGarden", "ClaimPlant", i}
                 game:GetService("ReplicatedStorage").Network.Instancing_FireCustomFromClient:FireServer(unpack(args))
             end)
             Wait(2)
