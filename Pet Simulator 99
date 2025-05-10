@@ -297,7 +297,7 @@ local SeedBagToggle = GardenTab:CreateToggle({
                         notified = true
                     end
                 end
-                task.wait(0.1)
+                Wait(5)
             end
         end)
     end
