@@ -200,11 +200,10 @@ local gardenCycleEnabled = false
 
 local function gardenCycle()
     while gardenCycleEnabled do
-        if getTotalAmountFromSections() < 10 then
-            warn("Zbyt mało Insta Plant Capsule lub Diamond Seed.")
-            gardenCycleEnabled = false
-            return
-        end
+
+        while gardenCycleEnabled and getTotalAmountFromSections() < 10 do
+    task.wait()
+end
 
         -- Sadzenie
         for i = 1, 10 do
